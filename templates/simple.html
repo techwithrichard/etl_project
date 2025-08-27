@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ETL Pipeline Dashboard</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        .etl-intro {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .etl-intro h2 {
+            margin: 0 0 15px 0;
+            font-size: 1.8em;
+        }
+        .etl-intro p {
+            margin: 0;
+            font-size: 1.1em;
+            line-height: 1.6;
+        }
+        .button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+        .button.danger {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+        }
+        .button.success {
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+        }
+        .status {
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            background: #f8f9fa;
+            border-left: 5px solid #667eea;
+            font-size: 1.1em;
+            font-weight: 500;
+        }
+        .status.success {
+            border-left-color: #2ecc71;
+            background: #d4edda;
+            color: #155724;
+        }
+        .status.error {
+            border-left-color: #e74c3c;
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .status.loading {
+            border-left-color: #f39c12;
+            background: #fff3cd;
+            color: #856404;
+        }
+        .data-section {
+            margin: 25px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border: 1px solid #e9ecef;
+        }
+        .data-section h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #dee2e6;
+        }
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: 600;
+        }
+        tr:hover {
+            background-color: #f8f9fa;
+        }
+        .loading {
+            color: #6c757d;
+            font-style: italic;
+            text-align: center;
+            padding: 20px;
+        }
+        .warehouse-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border: 2px solid #e9ecef;
+        }
+        .stat-card h3 {
+            margin: 0 0 10px 0;
+            color: #667eea;
+        }
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>ETL Pipeline Dashboard</h1>
+        
+        <div class="etl-intro">
+            <h2>Extract • Transform • Load</h2>
+            <p>
+                This dashboard provides a comprehensive view of your ETL pipeline operations. 
+                Extract data from multiple sources (MySQL, APIs, Web, Excel), transform it for analysis, 
+                and load it into a data warehouse for business intelligence and reporting.
+            </p>
+        </div>
+        
+        <div class="data-section">
+            <h2>Pipeline Control</h2>
+            <button class="button success" onclick="runETL()">Run ETL Pipeline</button>
+            <button class="button" onclick="loadData()">Refresh Data</button>
+            <button class="button" onclick="checkWarehouse()">Warehouse Status</button>
+            <button class="button" onclick="runAnalytics()">Run Analytics</button>
+            <button class="button danger" onclick="clearData()">Clear Data</button>
+            <div id="status" class="status">Ready to run ETL pipeline. Click "Run ETL Pipeline" to start processing data.</div>
+        </div>
+        
+        <div class="data-section">
+            <h2>Data Summary</h2>
+            <div id="summary">No data available. Run ETL pipeline to see summary.</div>
+        </div>
+        
+        <div class="data-section">
+            <h2>Warehouse Information</h2>
+            <div id="warehouse-info">Click "Warehouse Status" to see warehouse details and data statistics.</div>
+        </div>
+        
+        <div class="data-section">
+            <h2>Extracted Data</h2>
+            <div id="data">No data available. Run ETL pipeline to see extracted and transformed data.</div>
+        </div>
+    </div>
+
+    <script>
+        function setStatus(message, type = '') {
+            const statusElement = document.getElementById('status');
+            statusElement.textContent = message;
+            statusElement.className = 'status ' + type;
+        }
+        
+        function runETL() {
+            setStatus('Running ETL pipeline... This may take a few moments.', 'loading');
+            
+            fetch('/run_etl')
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.success) {
+                        setStatus('ETL completed successfully! Data has been extracted, transformed, and loaded into the warehouse.', 'success');
+                        displayData(data);
+                    } else {
+                        setStatus('Error: ' + (data.error || 'Unknown error'), 'error');
+                    }
+                })
+                .catch(error => {
+                    setStatus('Error: ' + error.message, 'error');
+                    console.error('Error:', error);
+                });
+        }
+        
+        function loadData() {
+            setStatus('Loading data from warehouse...', 'loading');
+            
+            fetch('/get_data')
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.success) {
+                        setStatus('Data loaded successfully from warehouse!', 'success');
+                        displayData(data);
+                    } else {
+                        setStatus(data.error || 'No data available', 'error');
+                    }
+                })
+                .catch(error => {
+                    setStatus('Error loading data: ' + error.message, 'error');
+                    console.error('Error:', error);
+                });
+        }
+        
+        function checkWarehouse() {
+            setStatus('Checking warehouse status and statistics...', 'loading');
+            
+            fetch('/warehouse/summary')
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.success) {
+                        setStatus('Warehouse status loaded! Showing data statistics.', 'success');
+                        displayWarehouseInfo(data.summary);
+                    } else {
+                        setStatus('Error: ' + (data.error || 'Unknown error'), 'error');
+                    }
+                })
+                .catch(error => {
+                    setStatus('Error: ' + error.message, 'error');
+                    console.error('Error:', error);
+                });
+        }
+        
+        function runAnalytics() {
+            setStatus('Running analytics on warehouse data...', 'loading');
+            
+            fetch('/warehouse/analytics')
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.success) {
+                        setStatus('Analytics completed! Showing insights from warehouse data.', 'success');
+                        displayAnalytics(data.analytics);
+                    } else {
+                        setStatus('Error: ' + (data.error || 'Unknown error'), 'error');
+                    }
+                })
+                .catch(error => {
+                    setStatus('Error: ' + error.message, 'error');
+                    console.error('Error:', error);
+                });
+        }
+        
+        function clearData() {
+            if (!confirm('Are you sure you want to clear all data? This will remove data from memory, files, and the warehouse. This action cannot be undone.')) {
+                return;
+            }
+            
+            setStatus('Clearing data from memory, files, and warehouse...', 'loading');
+            
+            // Clear the UI first
+            document.getElementById('summary').innerHTML = 'No data available. Run ETL pipeline to see summary.';
+            document.getElementById('data').innerHTML = 'No data available. Run ETL pipeline to see extracted and transformed data.';
+            document.getElementById('warehouse-info').innerHTML = 'Click "Warehouse Status" to see warehouse details and data statistics.';
+            
+            // Clear server data
+            fetch('/clear_data', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                setStatus('Data cleared successfully from memory, files, and warehouse!', 'success');
+            })
+            .catch(error => {
+                setStatus('UI cleared, but server clearing failed', 'error');
+                console.error('Error:', error);
+            });
+        }
+        
+        function displayData(data) {
+            if (!data || !data.data) return;
+            
+            // Display summary
+            displaySummary(data.summary);
+            
+            // Display data tables
+            displayDataTables(data.data);
+        }
+        
+        function displaySummary(summary) {
+            if (!summary) return;
+            
+            let summaryHTML = '<div class="warehouse-stats">';
+            if (summary.run_id) {
+                summaryHTML += `<div class="stat-card"><h3>Run ID</h3><div class="stat-value">${summary.run_id}</div></div>`;
+            }
+            if (summary.processed_at) {
+                summaryHTML += `<div class="stat-card"><h3>Processed</h3><div class="stat-value">${summary.processed_at}</div></div>`;
+            }
+            if (summary.record_counts) {
+                Object.entries(summary.record_counts).forEach(([dataset, count]) => {
+                    summaryHTML += `<div class="stat-card"><h3>${dataset}</h3><div class="stat-value">${count}</div></div>`;
+                });
+            }
+            summaryHTML += '</div>';
+            
+            document.getElementById('summary').innerHTML = summaryHTML;
+        }
+        
+        function displayWarehouseInfo(summary) {
+            if (!summary) return;
+            
+            let warehouseHTML = '<div class="warehouse-stats">';
+            warehouseHTML += '<h3>Warehouse Statistics</h3>';
+            
+            Object.entries(summary).forEach(([table, count]) => {
+                if (table !== 'latest_run') {
+                    warehouseHTML += `<div class="stat-card"><h3>${table}</h3><div class="stat-value">${count}</div></div>`;
+                }
+            });
+            
+            if (summary.latest_run) {
+                const latest = summary.latest_run;
+                warehouseHTML += '<h4>Latest Pipeline Run</h4>';
+                warehouseHTML += `<div class="stat-card"><h3>Run ID</h3><div class="stat-value">${latest.run_id}</div></div>`;
+                warehouseHTML += `<div class="stat-card"><h3>Status</h3><div class="stat-value">${latest.status}</div></div>`;
+                warehouseHTML += `<div class="stat-card"><h3>Records</h3><div class="stat-value">${latest.records_processed}</div></div>`;
+                warehouseHTML += `<div class="stat-card"><h3>Start Time</h3><div class="stat-value">${latest.start_time}</div></div>`;
+                warehouseHTML += `<div class="stat-card"><h3>End Time</h3><div class="stat-value">${latest.end_time}</div></div>`;
+            }
+            
+            warehouseHTML += '</div>';
+            document.getElementById('warehouse-info').innerHTML = warehouseHTML;
+        }
+        
+        function displayAnalytics(analytics) {
+            if (!analytics) return;
+            
+            let analyticsHTML = '<div class="warehouse-stats">';
+            analyticsHTML += '<h3>Analytics Results</h3>';
+            
+            Object.entries(analytics).forEach(([dataset, data]) => {
+                analyticsHTML += `<h4>${dataset.toUpperCase()}</h4>`;
+                Object.entries(data).forEach(([key, value]) => {
+                    if (typeof value === 'object') {
+                        analyticsHTML += `<div class="stat-card"><h3>${key}</h3>`;
+                        Object.entries(value).forEach(([k, v]) => {
+                            analyticsHTML += `<div>${k}: ${v}</div>`;
+                        });
+                        analyticsHTML += '</div>';
+                    } else {
+                        analyticsHTML += `<div class="stat-card"><h3>${key}</h3><div class="stat-value">${value}</div></div>`;
+                    }
+                });
+            });
+            
+            analyticsHTML += '</div>';
+            document.getElementById('warehouse-info').innerHTML = analyticsHTML;
+        }
+        
+        function displayDataTables(data) {
+            if (!data) return;
+            
+            let dataHTML = '';
+            
+            Object.entries(data).forEach(([datasetName, records]) => {
+                if (Array.isArray(records) && records.length > 0) {
+                    dataHTML += `<div class="data-section">`;
+                    dataHTML += `<h3>${datasetName.toUpperCase()} (${records.length} records)</h3>`;
+                    dataHTML += `<div>`;
+                    dataHTML += '<table>';
+                    
+                    // Create header
+                    const headers = Object.keys(records[0]);
+                    dataHTML += '<tr>';
+                    headers.forEach(header => {
+                        dataHTML += `<th>${header}</th>`;
+                    });
+                    dataHTML += '</tr>';
+                    
+                    // Create rows (limit to first 10 for display)
+                    records.slice(0, 10).forEach(record => {
+                        dataHTML += '<tr>';
+                        headers.forEach(header => {
+                            const value = record[header];
+                            // Handle null, undefined, and NaN values gracefully
+                            if (value === null || value === undefined || value === 'NaN' || value === 'nan' || value === 'NAN') {
+                                dataHTML += `<td><em>N/A</em></td>`;
+                            } else {
+                                dataHTML += `<td>${value}</td>`;
+                            }
+                        });
+                        dataHTML += '</tr>';
+                    });
+                    
+                    dataHTML += '</table>';
+                    if (records.length > 10) {
+                        dataHTML += `<p><em>Showing first 10 of ${records.length} records</em></p>`;
+                    }
+                    dataHTML += '</div></div>';
+                }
+            });
+            
+            document.getElementById('data').innerHTML = dataHTML || 'No data available';
+        }
+        
+        // Load data when page loads
+        window.onload = function() {
+            console.log('ETL Dashboard loaded successfully');
+            // Load initial data after a short delay
+            setTimeout(loadData, 1000);
+        };
+    </script>
+</body>
+</html>
