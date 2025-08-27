@@ -48,3 +48,12 @@ etl_project/
 
 ## Learning Journey
 This commit history shows my step-by-step development process, from initial concept to a fully functional ETL system.
+
+📖 **Read my detailed learning journey**: [LEARNING_JOURNEY.md](LEARNING_JOURNEY.md)
+
+This document covers:
+- What I set out to learn and why
+- How I approached the project step by step
+- Problems I solved and lessons learned
+- What I achieved technically and personally
+- Future improvements and career impact
