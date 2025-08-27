@@ -1,10 +1,10 @@
-# Installation Guide
+ git# Installation Guide
 
 ## Quick Start
 
 1. **Clone the repository**
    ```bash
-   git clone <your-repo-url>
+   git clone https://github.com/techwithrichard/etl_project.git
    cd etl_project
    ```
 
@@ -19,7 +19,13 @@
 
 4. **Run the project**
    ```bash
+   # Start web dashboard
    python start.py
+   
+   # Or use CLI commands
+   python cli.py dashboard
+   python cli.py etl
+   python cli.py test
    ```
 
 ## Environment Variables
