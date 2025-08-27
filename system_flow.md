@@ -1,0 +1,1 @@
+Extract(DB, API, Web->scraping#(Beaautiful soup), File->Excel files) Transform -> Load->Warehouse(persist in an Sqlite Db (JSON)-Dashboard->Read JSON
