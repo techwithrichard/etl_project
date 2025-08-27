@@ -1,5 +1,6 @@
 import requests
 import pandas as pd
+import os
 from datetime import datetime
 
 def extract_from_weather_api(cities=None):
@@ -12,7 +13,7 @@ def extract_from_weather_api(cities=None):
         cities = ["Nairobi", "Mombasa", "Kisumu", "Nakuru", "Eldoret"]
     
     # Your API key
-    api_key = "7398ba9119a049d09f563c3e1e72b405"
+    api_key = os.getenv("OPENWEATHER_API_KEY", "demo_key")
     # api_key="iuaybc98ewr98u98"
     
     all_weather_data = []

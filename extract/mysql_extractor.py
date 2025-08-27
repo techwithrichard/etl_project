@@ -2,14 +2,21 @@
 
 from sqlalchemy import create_engine, text
 import pandas as pd
+import os
 
 def extract_from_mysql():
     """
     Extract student data from MySQL database using SQLAlchemy and return df student
     """
     try:
-        # ,ysql engine
-        engine = create_engine("mysql+mysqlconnector://root:1234@localhost/etl")
+        # MySQL engine
+        mysql_user = os.getenv("MYSQL_USER", "root")
+        mysql_password = os.getenv("MYSQL_PASSWORD", "1234")
+        mysql_host = os.getenv("MYSQL_HOST", "localhost")
+        mysql_database = os.getenv("MYSQL_DATABASE", "etl")
+        
+        connection_string = f"mysql+mysqlconnector://{mysql_user}:{mysql_password}@{mysql_host}/{mysql_database}"
+        engine = create_engine(connection_string)
         
         # Query to get student data
         query = text("SELECT * FROM Students")

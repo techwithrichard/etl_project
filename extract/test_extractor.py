@@ -6,9 +6,17 @@
 
 from sqlalchemy import create_engine, text
 import pandas as pd
+import os
 
 
-engine = create_engine("mysql+mysqlconnector://root:root@localhost/sakila")
+# Use environment variables for database connection
+mysql_user = os.getenv("MYSQL_TEST_USER", "root")
+mysql_password = os.getenv("MYSQL_TEST_PASSWORD", "root")
+mysql_host = os.getenv("MYSQL_TEST_HOST", "localhost")
+mysql_database = os.getenv("MYSQL_TEST_DATABASE", "sakila")
+
+connection_string = f"mysql+mysqlconnector://{mysql_user}:{mysql_password}@{mysql_host}/{mysql_database}"
+engine = create_engine(connection_string)
     
 my_customer = text("SELECT * FROM customer")
 # my_country = text("SELECT * FROM country")
